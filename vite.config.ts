@@ -4,4 +4,10 @@ import react from '@vitejs/plugin-react-swc'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+	proxy: {
+		// Använd den port som står i .env
+		'/api': 'http://localhost:1337/'
+	}
+  }
 })
