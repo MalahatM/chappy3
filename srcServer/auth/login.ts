@@ -19,8 +19,8 @@ router.post("/", async (req, res) => {
     const command = new GetCommand({
       TableName: "chappy",
       Key: {
-        pk:` USER#${username}`,
-        sk:` PROFILE#${username}`,
+        pk: `USER#${username}`,
+        sk: `PROFILE#${username}`,
       },
     });
 
@@ -38,17 +38,17 @@ router.post("/", async (req, res) => {
 
     // Create token
     const token = jwt.sign(
-      { username: user.username, email: user.email },
+      { username: user.username,},
       JWT_SECRET,
       { expiresIn: "2h" }
     );
 
-    console.log( `User logged in: ${username}`);
+    console.log(` User logged in: ${username}`);
 
     res.json({
       message: "Login successful.",
       token,
-      user: { username: user.username, email: user.email },
+      user: { username: user.username, },
     });
   } catch (error) {
     console.error(" Error logging in:", error);
