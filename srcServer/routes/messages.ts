@@ -1,0 +1,104 @@
+import express from "express";
+import { db } from "../data/db.js";
+import { QueryCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { messageSchema } from "../validering/messageValidate.js";
+
+const router = express.Router();
+
+/**
+ * GET /api/messages/:channel
+ * Fetch all messages in a channel
+ */
+router.get("/:channel", async (req, res) => {
+  try {
+    const { channel } = req.params;
+    console.log(`Fetching messages for channel: ${channel}`);
+
+    const command = new QueryCommand({
+      TableName: "chappy",
+      KeyConditionExpression: "pk = :pk AND begins_with(sk, :msgPrefix)",
+      ExpressionAttributeValues: {
+        ":pk": `CHANNEL#${channel}`,
+        ":msgPrefix": "MESSAGE#",
+      },
+    });
+// Send query command to DynamoDB
+    const result = await db.send(command);
+    res.json(result.Items || []);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ error: "Failed to fetch messages." });
+  }
+});
+
+/**
+ * POST /api/messages/:channel
+ * Add a new message to a channel
+ */
+router.post("/:channel", async (req, res) => {
+  try {
+    const { channel } = req.params;
+    const parsed = messageSchema.safeParse(req.body);
+// Validate request body
+    if (!parsed.success) {
+      return res
+        .status(400)
+        .json({ error: parsed.error.issues.map((e) => e.message) });
+    }
+// Create new message item
+    const { sender, content } = parsed.data;
+    const timestamp = new Date().toISOString();
+//create message object
+    const newMessage = {
+      pk: `CHANNEL#${channel}`,
+      sk: `MESSAGE#${timestamp}`,
+      sender,
+      content,
+      createdAt: timestamp,
+    };
+// Put new message into DynamoDB
+    await db.send(
+      new PutCommand({
+        TableName: "chappy",
+        Item: newMessage,
+      })
+    );
+
+    console.log(`Message added to channel ${channel}`);
+// Respond with success message
+    res.status(201).json({
+      message: "Message sent successfully.",
+      item: newMessage,
+    });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ error: "Failed to send message." });
+  }
+});
+
+/**
+ * GET /api/messages/dm/:username
+ * Get all DMs for a user
+ */
+router.get("/dm/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+// Query DynamoDB for DMs
+    const command = new QueryCommand({
+      TableName: "chappy",
+      KeyConditionExpression: "pk = :pk AND begins_with(sk, :dmPrefix)",
+      ExpressionAttributeValues: {
+        ":pk":`USER#${username}`,
+        ":dmPrefix": "DM#",
+      },
+    });
+// Send query command to DynamoDB
+    const result = await db.send(command);
+    res.json(result.Items || []);
+  } catch (error) {
+    console.error("Error fetching DMs:", error);
+    res.status(500).json({ error: "Failed to fetch DMs." });
+  }
+});
+
+export default router;
