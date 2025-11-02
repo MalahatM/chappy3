@@ -1,0 +1,137 @@
+/* Layout */
+
+.home-wrapper {
+  background-color: #d884d8;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* Card Container */
+
+.home-card {
+  background-color: #f3e1f9; /* light purple */
+  padding: 3rem 2rem;
+  border-radius: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  width: 90%;
+  max-width: 320px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+/* Title */
+
+.home-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #e74c3c; /* red title */
+  text-align: center;
+}
+
+
+/* Input Fields */
+
+.home-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.75rem;
+  text-align: center;
+  background-color: white;
+  outline: none;
+  transition: box-shadow 0.2s ease;
+}
+
+.home-input:focus {
+  box-shadow: 0 0 0 2px #e74c3c33;
+}
+
+
+/* Buttons Layout */
+
+.home-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+
+/* Buttons */
+
+.btn {
+  border: none;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* Button Variants */
+.btn-login {
+  background-color: #d3615a;
+  color: white;
+}
+
+.btn-register {
+  background-color: #e77ac2;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #f2b24d;
+  color: black;
+}
+
+
+/* Guest Button */
+
+.home-guest {
+  background: none;
+  border: none;
+  margin-top: 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: black;
+  cursor: pointer;
+}
+
+.home-guest:hover {
+  text-decoration: underline;
+}
+
+
+/* Message Feedback Styles */
+
+.home-message {
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  transition: color 0.2s ease;
+}
+
+/* Message colors based on type */
+.home-message.success {
+  color: #27ae60; /* green for success */
+}
+
+.home-message.error {
+  color: #c0392b; /* red for errors */
+}
+
+.home-message.warning {
+  color: #e67e22; /* orange for warnings */
+}
