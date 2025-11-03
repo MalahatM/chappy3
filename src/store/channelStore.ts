@@ -14,10 +14,10 @@ interface ChannelState {
 // Zustand store for channel management
 export const useChannelStore = create<ChannelState>((set) => ({
   channels: [
-    { name: "#Coders group", isPrivate: false },
-    { name: "#Funny group", isPrivate: false },
-    { name: "#group1", isPrivate: true },
-    { name: "#group2", isPrivate: true },
+    { name: "#Coders group", isPrivate: true },
+    { name: "#Funny group", isPrivate: true },
+    { name: "#group1", isPrivate: false },
+    { name: "#group2", isPrivate: false },
   ],
   // Currently selected channel
   currentChannel: null,
