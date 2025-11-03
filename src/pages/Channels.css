@@ -1,0 +1,135 @@
+
+.channels-container {
+  background-color: #d884d8; 
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  font-family: "Poppins", sans-serif;
+}
+
+
+.channels-card {
+  background-color: #f3e1f9;
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  padding: 2rem;
+  width: 90%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #e74c3c;
+}
+
+.user-info {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #5a5a5a;
+  margin-right: 0.5rem;
+}
+
+
+.logout-btn {
+  background-color: #d3615a;
+  color: white;
+  border: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: transform 0.1s ease, opacity 0.2s ease;
+}
+
+.logout-btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+
+.channels-section,
+.dm-section {
+  width: 100%;
+ background-color: #f3e1f9;
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+
+.channel-item,
+.dm-item {
+  background-color: #fff;
+  padding: 0.7rem 1rem;
+  border-radius: 0.75rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.channel-item:hover,
+.dm-item:hover {
+  transform: translateY(-2px);
+  background-color: #fceef8;
+}
+
+/* Section Titles */
+.dm-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e74c3c;
+  align-self: flex-start;
+  margin-bottom: 0.3rem;
+}
+
+
+@media (max-width: 480px) {
+  .header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .user-info {
+    text-align: center;
+    margin: 0;
+  }
+
+  .logout-btn {
+    width: 100%;
+  }
+   .header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .user-info {
+    text-align: center;
+    margin: 0;
+  }
+
+  .logout-btn {
+    width: auto;
+    padding: 0.4rem 1rem; 
+    font-size: 0.8rem; 
+  }
+}
