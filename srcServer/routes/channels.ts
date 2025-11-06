@@ -1,18 +1,15 @@
 import express from "express";
 import { db } from "../data/db.js";
 import { ScanCommand } from "@aws-sdk/lib-dynamodb";
+import type { AuthRequest } from "../auth/authMiddleware.js";
 
 const router = express.Router();
 
-/**
- 
- GET /api/channels
-Fetch all channels (open and locked)*/
-router.get("/", async (req, res) => {
+//  GET /api/channels
+router.get("/", async (req: AuthRequest, res) => {
   try {
     console.log("GET /api/channels called");
 
-    // Scan DynamoDB for channels
     const command = new ScanCommand({
       TableName: "chappy",
       FilterExpression:
@@ -24,14 +21,14 @@ router.get("/", async (req, res) => {
     });
 
     const result = await db.send(command);
+    const channels = result.Items || [];
 
-    // Keep only items that are channel metadata
-    const channels =
-      result.Items?.filter((item) => item.sk.startsWith("META#")) || [];
+    // showing guest users only public channels
+    const filtered = req.isGuest
+      ? channels.filter((ch) => !ch.isPrivate)
+      : channels;
 
-    console.log(`Channels fetched: ${channels.length}`);
-
-    res.json(channels);
+    res.json(filtered);
   } catch (error) {
     console.error(" Error fetching channels:", error);
     res.status(500).json({ error: "Failed to fetch channels." });
