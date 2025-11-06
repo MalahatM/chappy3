@@ -1,14 +1,16 @@
 import express from "express";
 import { db } from "../data/db.js";
-import { ScanCommand, DeleteCommand } from "@aws-sdk/lib-dynamodb";
+import { ScanCommand} from "@aws-sdk/lib-dynamodb";
+import type { AuthRequest } from "../auth/authMiddleware.js";
 
 const router = express.Router();
 
-// GET /api/users
-router.get("/", async (req, res) => {
+//  GET /api/users 
+router.get("/", async (req: AuthRequest, res) => {
   try {
     console.log("Fetching user profiles...");
-// Scan DynamoDB for user profiles
+
+ // Create a Scan command to look for all user profiles in DynamoDB
     const command = new ScanCommand({
       TableName: "chappy",
       FilterExpression:
@@ -18,14 +20,15 @@ router.get("/", async (req, res) => {
         ":profilePrefix": "PROFILE#",
       },
     });
-
+ // Send the command to DynamoDB
     const result = await db.send(command);
-
+	 // Extract usernames from the results
     const users =
       result.Items?.map((u) => ({
         username: u.username,
       })) || [];
 
+    // Send the list of users to the frontend
     res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -33,27 +36,6 @@ router.get("/", async (req, res) => {
   }
 });
 
-// DELETE /api/users/:username
-router.delete("/:username", async (req, res) => {
-  try {
-    const { username } = req.params;
-// Delete user profile from DynamoDB
-    const command = new DeleteCommand({
-      TableName: "chappy",
-      Key: {
-        pk: `USER#${username}`,
-        sk: `PROFILE#${username}`, 
-      },
-    });
-// Send delete command to DynamoDB
-    await db.send(command);
-    console.log(`User deleted: ${username}`);
-// Respond with success message
-    res.json({ message: "User deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ error: "Failed to delete user" });
-  }
-});
+
 
 export default router;
