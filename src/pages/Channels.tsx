@@ -125,7 +125,7 @@ const Channels = () => {
   return (
     <div className="channels-container">
       <div className="channels-card">
-        {/* 🟣 Header Section */}
+        {/*  Header Section */}
         <div className="header">
           <h2>Channels</h2>
           {isGuest ? (
@@ -138,7 +138,7 @@ const Channels = () => {
           </button>
         </div>
 
-        //Channel List 
+        {/*Channel List */}
         <div className="channels-section">
           {channels.map((ch) => (
             <div
@@ -152,7 +152,7 @@ const Channels = () => {
           ))}
         </div>
 
-        // Direct Messages Section (hidden for guests) 
+        {/* Direct Messages Section (hidden for guests) */}
         {!isGuest && (
           <>
             <h3 className="dm-title">Direct Messages</h3>
@@ -174,7 +174,7 @@ const Channels = () => {
           </>
         )}
 
-        // All Users Section 
+       {/*  All Users Section */}
         <h3 className="dm-title">All Users</h3>
         <div className="dm-section">
           {users.length > 0 ? (

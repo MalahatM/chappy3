@@ -100,7 +100,7 @@ const Messages = () => {
     }
   };
 
-  //  Disable input if Guest is in a Direct Message
+    {/* Disable input if Guest is in a Direct Message */}
   const inputDisabled = isDM && isGuest;
 
   return (
@@ -133,7 +133,7 @@ const Messages = () => {
         </div>
       )}
 
-      // Input area - Guests can only type in public channels 
+        {/* Input area - Guests can only type in public channels */}
       <div className="message-input">
         <input
           type="text"
