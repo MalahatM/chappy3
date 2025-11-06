@@ -133,7 +133,7 @@ const Messages = () => {
         </div>
       )}
 
-      {/*  Input area - Guests can only type in public channels */}
+      // Input area - Guests can only type in public channels 
       <div className="message-input">
         <input
           type="text"
