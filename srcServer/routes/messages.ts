@@ -6,7 +6,11 @@ import type { AuthRequest } from "../auth/authMiddleware.js";
 
 const router = express.Router();
 
-// Get all direct messages related to one user (only for logged-in users)
+
+   // GET /api/messages/dm/:username
+   // Fetch all direct messages that involve a given user
+   //(Only accessible by logged-in users)
+
 router.get("/dm/:username", async (req: AuthRequest, res) => {
   if (req.isGuest) {
     return res.status(403).json({ error: "Guests cannot access DMs." });
@@ -15,74 +19,87 @@ router.get("/dm/:username", async (req: AuthRequest, res) => {
   try {
     const { username } = req.params;
 
-    // Fetch DMs where the user is sender or receiver
     const command = new ScanCommand({
       TableName: "chappy",
-      FilterExpression: "sender = :u OR receiver = :u",
-      ExpressionAttributeValues: { ":u": username },
+      FilterExpression: "begins_with(pk, :dmPrefix) AND (sender = :u OR receiver = :u)",
+      ExpressionAttributeValues: {
+        ":dmPrefix": "DM#",
+        ":u": username,
+      },
     });
 
     const result = await db.send(command);
 
-    // sort messages by creation date (newest first)
+    // Sort messages by most recent first
     const items =
       (result.Items || []).sort(
-        (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
 
     res.json(items);
   } catch (error) {
-    console.error("❌ Error fetching DMs:", error);
+    console.error(" Error fetching DMs:", error);
     res.status(500).json({ error: "Failed to fetch DMs." });
   }
 });
 
-//  get DMs exchanged between two specific users
+
+   // GET /api/messages/dm/:user1/:user2
+   // Fetch all direct messages between two specific users
+
 router.get("/dm/:user1/:user2", async (req: AuthRequest, res) => {
   if (req.isGuest) {
     return res.status(403).json({ error: "Guests cannot access DMs." });
   }
 
   try {
-    const { user1, user2 } = req.params;
+    const user1 = req.params.user1 as string;
+    const user2 = req.params.user2 as string;
 
-    // Fetch messages where user1 <-> user2 are sender/receiver pairs
-    const command = new ScanCommand({
+    const dmKey =
+      user1.toLowerCase() < user2.toLowerCase()
+        ? `DM#${user1}#${user2}`
+        : `DM#${user2}#${user1}`;
+
+
+    const command = new QueryCommand({
       TableName: "chappy",
-      FilterExpression:
-        "(sender = :user1 AND receiver = :user2) OR (sender = :user2 AND receiver = :user1)",
+      KeyConditionExpression: "pk = :pk AND begins_with(sk, :msgPrefix)",
       ExpressionAttributeValues: {
-        ":user1": user1,
-        ":user2": user2,
+        ":pk": dmKey,
+        ":msgPrefix": "MESSAGE#",
       },
     });
 
     const result = await db.send(command);
 
-    // Sort by creation time (oldest first)
-    const items = (result.Items || []).sort(
-      (a, b) =>
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-    );
+    // Sort messages by oldest first (chat order)
+    const items =
+      (result.Items || []).sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
 
     res.json(items);
   } catch (error) {
-    console.error("❌ Error fetching DMs:", error);
+    console.error(" Error fetching DMs:", error);
     res.status(500).json({ error: "Failed to fetch direct messages." });
   }
 });
 
-// Send a direct message between two users (only logged-in users)
+
+   // POST /api/messages/dm/:receiver
+   //Send a direct message between two users
+   //(Only allowed for logged-in users)
+
 router.post("/dm/:receiver", async (req: AuthRequest, res) => {
   if (req.isGuest) {
     return res.status(403).json({ error: "Guests cannot send direct messages." });
   }
 
   try {
-    const { receiver } = req.params;
+    const receiver = req.params.receiver as string;
 
-    // Validate input using Zod schema
+    //  Validate body data
     const parsed = dmSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -93,34 +110,26 @@ router.post("/dm/:receiver", async (req: AuthRequest, res) => {
     const { sender, content } = parsed.data;
     const timestamp = new Date().toISOString();
 
-    // Create two mirrored records (for sender & receiver)
-    const senderItem = {
-      pk: `USER#${sender}`,
-      sk: `DM#${receiver}#${timestamp}`,
+    //  Use shared DM key instead of duplicating items
+    const dmKey =
+      sender.toLowerCase() < receiver.toLowerCase()
+        ? `DM#${sender}#${receiver}`
+        : `DM#${receiver}#${sender}`;
+
+    const newMessage = {
+      pk: dmKey,
+      sk: `MESSAGE#${timestamp}`,
       sender,
       receiver,
       content,
       createdAt: timestamp,
     };
 
-    const receiverItem = {
-      pk: `USER#${receiver}`,
-      sk: `DM#${sender}#${timestamp}`,
-      sender,
-      receiver,
-      content,
-      createdAt: timestamp,
-    };
-
-    // Save both messages in DynamoDB
-    await Promise.all([
-      db.send(new PutCommand({ TableName: "chappy", Item: senderItem })),
-      db.send(new PutCommand({ TableName: "chappy", Item: receiverItem })),
-    ]);
+    await db.send(new PutCommand({ TableName: "chappy", Item: newMessage }));
 
     res.status(201).json({
       message: "DM sent successfully.",
-      item: senderItem,
+      item: newMessage,
     });
   } catch (error) {
     console.error(" Error sending DM:", error);
@@ -128,12 +137,14 @@ router.post("/dm/:receiver", async (req: AuthRequest, res) => {
   }
 });
 
-//  Get all messages from a specific channel (guests allowed)
+   // GET /api/messages/:channel
+   //Fetch messages from a specific channel
+   //(Guests are allowed to view)
+
 router.get("/:channel", async (req: AuthRequest, res) => {
   try {
     const channel = req.params.channel as string;
 
-    // Query all messages belonging to the channel
     const command = new QueryCommand({
       TableName: "chappy",
       KeyConditionExpression: "pk = :pk AND begins_with(sk, :msgPrefix)",
@@ -144,12 +155,9 @@ router.get("/:channel", async (req: AuthRequest, res) => {
     });
 
     const result = await db.send(command);
-
-    // Sort by oldest first
     const items =
       (result.Items || []).sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
 
     res.json(items);
@@ -159,12 +167,16 @@ router.get("/:channel", async (req: AuthRequest, res) => {
   }
 });
 
-// 🔹 Send a message to a channel (guests can post in open channels only)
+
+   // POST /api/messages/:channel
+   //Send a message to a channel
+   //(Guests can only post in public channels)
+
 router.post("/:channel", async (req: AuthRequest, res) => {
   try {
     const channel = req.params.channel as string;
 
-    // Validate message content
+    // Validate input
     const parsed = messageSchema.safeParse(req.body);
     if (!parsed.success) {
       return res.status(400).json({
@@ -175,7 +187,6 @@ router.post("/:channel", async (req: AuthRequest, res) => {
     const { sender, content } = parsed.data;
     const timestamp = new Date().toISOString();
 
-    // Create new message object
     const newMessage = {
       pk: `CHANNEL#${channel}`,
       sk: `MESSAGE#${timestamp}`,
@@ -184,7 +195,6 @@ router.post("/:channel", async (req: AuthRequest, res) => {
       createdAt: timestamp,
     };
 
-    // Save message to DynamoDB
     await db.send(new PutCommand({ TableName: "chappy", Item: newMessage }));
 
     res.status(201).json({
