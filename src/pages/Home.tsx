@@ -3,13 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../store/UserStore";
 import "./Home.css";
 
+// The main component for the Home (login/register) page
 export default function Home() {
+	 // States for input fields
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+   // States for showing feedback messages (like “success”, “error”)
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error" | "warning" | "">("");
 
   const navigate = useNavigate();
+
+  // Get functions from Zustand store to manage user info
   const { setUser, logout, setGuest } = useUserStore();
 
   //  Register
@@ -24,6 +29,8 @@ export default function Home() {
       const data = await res.json();
 
       if (res.ok) {
+		 // If registration worked:
+        // Save token and username in browser storage
         localStorage.setItem("token", data.token || "");
         localStorage.setItem("username", username);
         setUser(username, data.token || "");
