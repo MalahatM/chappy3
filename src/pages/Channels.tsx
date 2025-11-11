@@ -29,8 +29,8 @@ const Channels = () => {
   const { username, token, logout, isGuest, hydrated } = useUserStore();
   const { channels, setChannels, setCurrentChannel } = useChannelStore();
 
-  const [dms, setDMs] = useState<string[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [dms, setDMs] = useState<string[]>([]);//direct messages
+  const [users, setUsers] = useState<User[]>([]);//all users
 
   // Fetch data once the store is hydrated and user is authenticated or guest
   useEffect(() => {
