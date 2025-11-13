@@ -1,73 +1,56 @@
-# React + TypeScript + Vite
+Chappy3 – Fullstack Chat Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Description:
+Chappy3 is a fullstack chat application built with React, TypeScript, and Express.
+It allows users to register, log in, join public or private channels, and send both public and direct messages.
+Guest users can view public channels but cannot send private messages or join private channels.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Features:
+1.User registration and login with JWT authentication
 
-## React Compiler
+2.Public and private chat channels
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+3.Direct messaging between registered users
 
-## Expanding the ESLint configuration
+4.Guest mode (read-only access)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+5.Input validation using Zod
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+6.Data stored in AWS DynamoDB
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+7.Global state management with Zustand
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+8.Written entirely in TypeScript
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Environment Variables:
+I have a .env file in the project root and it filled with:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+AWS_ACCESS_KEY_ID= My_access_key
+AWS_SECRET_ACCESS_KEY=My_secret_key
+AWS_REGION=eu-north-1
+PORT=10000
+JWT_SECRET=My_random_secret_key
+
+Technologies Used:
+
+Frontend(React,TypeScript,Vite,Zustand,React Router DOM,React Toastify)
+
+Backend(Node.js / Express,AWS SDK (DynamoDB),JWT,Bcrypt,Zod)
+
+Notes:
+
+1.Guest users can only view public channels.
+
+2.Registered users can access private channels and send direct messages.
+
+3.Input validation is handled by Zod before saving data.
+
+4.JWT tokens are verified for each protected route using middleware.
+
+
+Author
+
+Malahat Mortezavi
+Frontend Developer
